@@ -1,0 +1,139 @@
+drop database if exists PreLab; -- Bota la base de datos "PreLab" si existe
+create database PreLab; -- Crea la base de datos "PreLab"
+use PreLab; -- Pone en uso la base de datos antes creada
+
+drop table if exists empleados; -- Si existe la tabla "empleados" la bota
+create table empleados(  -- Crea la tabla empleados
+idEmpleado int(11) primary key,
+Nombre varchar(45),
+Apellido varchar(45),
+Puesto varchar(45)
+);
+
+drop table if exists categoria; -- Bota la tabla "categoria" si existe
+create table categoria(  -- Crea la tabla categoria
+idCategoria int(11) primary key,
+Nombre varchar(45)
+);
+
+drop table if exists peliculas; -- Bota la tabla "peliculas" si existe
+create table peliculas(  -- Crea la tabla peliculas
+idPeliculas int(11) primary key,
+Nombre varchar(45),
+Duracion int(11),
+Descripcion text,
+Año int(11),
+Categoria_idCategoria int(11), foreign key (Categoria_idCategoria) references categoria(idCategoria) on delete cascade
+); 								-- Conecta el campo "Categoria_idCategoria" con el campo "idCategoria" de la tabla categoria
+
+drop table if exists inventario; -- Bota la tabla "inventario" si existe
+create table inventario(  -- Crea la tabla inventario
+idCopiasPeliculas int(11) primary key,
+Peliculas_idPeliculas int(11), foreign key (Peliculas_idPeliculas) references peliculas(idPeliculas) on delete cascade,
+Disponible int(11)				-- Conecta el campo "Peliculas_idPeliculas" con el campo "idPeliculas" de la tabla peliculas
+);
+
+drop table if exists direccion; -- Bota la tabla direccion si existe
+create table direccion(  -- Crea la tabla direccion
+idDireccion int(11) primary key,
+Direccion varchar(45),
+Ciudad varchar(45),
+Pais varchar(45)
+);
+
+drop table if exists cliente; -- Bota la tabla cliente si existe
+create table cliente( 	-- Crea la tabla cliente
+idCliente int(11) primary key,
+Nombre varchar(45),
+Apellido varchar(45),
+Edad int(11),
+Direccion_idDireccion int(11), foreign key (Direccion_idDireccion) references direccion(idDireccion) on delete cascade
+);								-- Conecta el campo "Direccion_idDireccion" con el campo "idDireccion" de la tabla direccion
+
+drop table if exists renta; -- Bota la tabla renta si existe
+create table renta(		-- Crea la tabla renta
+idRenta int(11) primary key,
+Fecha_Renta date,
+Fecha_Entrega date,
+Inventario_idCopiasPeliculas int(11),   foreign key (Inventario_idCopiasPeliculas) references inventario(idCopiasPeliculas) on delete cascade,
+Cliente_idCliente int(11), foreign key (Cliente_idCliente) references cliente(idCliente)
+);	-- Conecta el campo "Inventario_idCopiasPeliculas" con el campo "idCopiasPeliculas" de la tabla inventario
+	-- Conecta el campo "Cliente_idCliente" con el campo "idCliente" de la tabla cliente
+    
+drop table if exists pagos; -- Bota la tabla pagos solo si existe
+create table pagos(			-- Crea la tabla pagos
+idPago int(11) primary key,
+Monto decimal(10,2),
+Metodo_Pago varchar(45),
+Renta_idRenta int(11), foreign key (Renta_idRenta) references renta(idRenta) on delete cascade
+);				-- Conecta el campo "Renta" con el campo "idRenta" de la tabla renta
+
+-- Se insertan los datos en cada campo de cada tabla
+insert into empleados (idEmpleado, Nombre, Apellido, Puesto) values
+(101, 'Carlos', 'Martinez', 'Cajero'),
+(102, 'Ana', 'Gonzalez', 'Supervisor'),
+(103, 'Fernando', 'Lopez', 'Gerente'),
+(104, 'Lucia', 'Ramirez', 'Atención al Cliente'),
+(105, 'Diego', 'Santos', 'Asistente de Inventario');
+
+insert into categoria(idCategoria,Nombre) values
+(567,'Ficcion/Animada'),
+(568,'Ficcion/Mundo Alterno'),
+(569,'Ficcion/Mundo Virtual'),
+(570,'Ficcion/Super Heroes'),
+(571,'Ficcion/Super Heroes');
+
+insert into peliculas (idPeliculas,Nombre,Duracion,Descripcion,Año,Categoria_idCategoria) values
+(100,'Pokemon1',96,'Primera película de la serie Pokemon',1998,567),
+(101,'Avatar',162,'Pelicula de ciencia ficcion',2009,568),
+(102,'Tron:Legacy',125,'Película de ciencia ficcion en un mundo virtual',2019,569),
+(103,'Spider-Man',121,'Pelicula del origen de spider-man',2002,570),
+(104,'The Avengers',143,'Pelicula de super heroes',2012,571);
+
+insert into inventario (idCopiasPeliculas,Peliculas_idPeliculas,Disponible) values
+(7634,100,13),
+(7635,101,5),
+(7636,102,8),
+(7637,103,24),
+(7638,104,3);
+
+insert into direccion (idDireccion,Direccion,Ciudad,Pais) values
+(1234,'22av','Guatemala','Guatemala'),
+(2341,'13av','Quiche','Guatemala'),
+(3214,'10-90','CDMX','Mexico'),
+(45763,'15av','Guadalajara','Mexico'),
+(763412,'32av','Flores','Guatemala');
+
+insert into cliente (idCliente,Nombre,Apellido,Edad,Direccion_idDireccion) values
+(54736,'Luis','Mencos',32,1234),
+(6356874,'Juan','Hernandez',54,2341),
+(235235,'Diego','Mayen',20,3214),
+(52472,'Leandro','Paredes',30,45763),
+(37237,'Juliana','Mejia',19,763412);
+
+insert into renta (idRenta,Fecha_Renta,Fecha_Entrega,Inventario_idCopiasPeliculas,Cliente_idCliente) values
+(35734,'2025-04-25','2025-04-30',7634,54736),
+(7346,'2025-03-10','2025-03-30',7635,6356874),
+(72849,'2025-03-15','2025-03-16',7636,235235),
+(793723,'2025-03-20','2025-03-23',7637,52472),
+(2346,'2025-03-2','2025-03-8',7638,37237);
+
+insert into pagos (idPago,Monto,Metodo_Pago,Renta_idRenta) values
+(1, 150.00, 'Tarjeta de Crédito', 35734),
+(2, 200.00, 'Efectivo', 7346),
+(3, 120.00, 'Transferencia Bancaria', 72849),
+(4, 180.00, 'Tarjeta de Débito', 793723),
+(5, 100.00, 'Efectivo', 2346);
+
+-- Se ejecutan las tablas con las indicaciones
+select * from empleados;
+select * from categoria;
+select * from peliculas order by Año desc; -- Se ordenan las peliculas por año de salida de manera descendente
+select * from inventario;
+select * from direccion;
+select * from cliente;
+select * from cliente where Nombre='Juliana'; -- Se ejecuta la tabla cliente donde se selecciona solo el nombre "Juliana"
+select * from renta;
+select * from pagos;
+delete from peliculas where Nombre = 'Pokemon1'; -- Se borra de la tabla peliculas la que tenga el nombre "Pokemon1"
+select * from peliculas;
